@@ -184,16 +184,21 @@ const buildSuites = (suites) => {
           if (suite.tests) {
             suite.tests.forEach(test => {
               suite.count.tests += 1
+              if (test.status === "run") {
+                test.status = "pass";
+              } else if (test.status === "notrun") {
+                test.status = "skip";
+              }
               suite.count[test.status] += 1
             })
           }
-
-          suite.status = 'fail'
-          if (suite.count.tests > 0 && suite.count.tests === suite.count.pass) suite.status = 'pass'
-          if (suite.count.tests > 0 && suite.count.tests === suite.count.error) suite.status = 'error'
-          if (suite.count.tests > 0 && suite.count.tests === suite.count.skip) suite.status = 'skip'
-          if (suite.count.tests > 0 && suite.count.tests === suite.count.unknown) suite.status = 'unknown'
-          if (suite.count.tests === 0) suite.status = 'pass'
+         
+          // give the suite the worst status of every test in the suite
+          suite.status = 'pass'
+          if (suite.count.skip) suite.status = 'skip';
+          if (suite.count.unknown) suite.status = 'unkown';
+          if (suite.count.error) suite.status = 'error';
+          if (suite.count.fail) suite.status = 'fail';
 
           suite._uuid = uuid.v4()
           return suite
